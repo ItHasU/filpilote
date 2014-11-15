@@ -1,90 +1,172 @@
 <!DOCTYPE html>
 <html>
-<head> 
-    <title>Fil pilote</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link REL="SHORTCUT ICON" HREF="/media/icon.png">
-    <link rel="apple-touch-icon" sizes="256x256" href="/media/icon.png">
-    
-    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css"/>
-    <link href="/bootstrap/css/bootstrap-theme.css" rel="stylesheet" type="text/css"/>
-    <link href="/index.css" media="screen" rel="stylesheet" type="text/css"/>
-    
-    <script src="/js/jquery.min.js"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/index.js"></script>
+<head>
+<title>Radiateurs</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link REL="SHORTCUT ICON" HREF="/media/icon.png">
+<link rel="apple-touch-icon" sizes="256x256" href="/media/icon.png">
+
+<link href="/bootstrap/css/bootstrap.css" rel="stylesheet"
+	type="text/css" />
+<link href="/bootstrap/css/bootstrap-theme.css" rel="stylesheet"
+	type="text/css" />
+<link href="/index.css" media="screen" rel="stylesheet" type="text/css" />
+
+<script src="/js/jquery.min.js"></script>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script src="/index.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-main">
-                    <span class="sr-only">Navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#main"><i class="glyphicon glyphicon-fire"></i>&nbsp;Contrôle</a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar-collapse-main">
-                <ul class="nav navbar-nav">
-                    <li><a href="#cal" class="active"><i class="glyphicon glyphicon-calendar"></i>&nbsp;Calendrier</a></li>
-                    <li><a href="#rules" class="active"><i class="glyphicon glyphicon-time"></i>&nbsp;Règles</a></li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#debug" class="active"><i class="glyphicon glyphicon-exclamation-sign"></i>&nbsp;Debug</a></li>
-                </ul>
-            </div>
-        </div><!-- /.container-fluid -->
-    </nav>
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#navbar-collapse-main">
+					<span class="sr-only">Navigation</span> <span class="icon-bar"></span>
+					<span class="icon-bar"></span> <span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#main"><i
+					class="glyphicon glyphicon-fire"></i>&nbsp;Contrôle</a>
+			</div>
+			<div class="collapse navbar-collapse" id="navbar-collapse-main">
+				<ul class="nav navbar-nav">
+					<li><a href="#cal" class="active"><i
+							class="glyphicon glyphicon-calendar"></i>&nbsp;Calendrier</a></li>
+					<li><a href="#rules" class="active"><i
+							class="glyphicon glyphicon-time"></i>&nbsp;Règles</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#debug" class="active"><i
+							class="glyphicon glyphicon-exclamation-sign"></i>&nbsp;Debug</a></li>
+				</ul>
+			</div>
+		</div>
+		<!-- /.container-fluid -->
+	</nav>
 
-    <!-- Dashboard -->
-    <div class="container" id="main">
-        <div id="dashboard-zones" class="row">
-            <div id="template-dashboard-zone" class="template col-xs-6 col-sm-4">
-                <div class="row" style="text-align: center">
-                    <i class="zone"></i>
-                </div>
-                <div class="row" style="text-align: center">
-                    <div class="btn-group">
-                        <a class="btn btn-default">
-                            <i class="mode mode-normal"></i>
-                        </a>
-                        <a class="btn btn-default">
-                            <i class="mode mode-eco"></i>
-                        </a>
-                        <a class="btn btn-default">
-                            <i class="mode mode-freeze"></i>
-                        </a>
-                        <a class="btn btn-default">
-                            <i class="mode mode-zero"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Debug -->
-    <div class="container" id="debug">
-        <div class="panel panel-default">
-            <div class="panel-heading">App settings <a id="debug_refresh" class="btn btn-default"><i class="glyphicon glyphicon-refresh"></i></a></div>
-            <div class="panel-body" id="debug_settings"></div>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Test POST <a id="debug_test_post" class="btn btn-default"><i class="glyphicon glyphicon-refresh"></i></a></div>
-            <div class="panel-body">
-                <div class="form">
-                    <input id="debug_test_post_zone"></input>
-                    <input id="debug_test_post_value"></input>
-                </div>
-                <div id="debug_test_post_result">
-                </div>
-            </div>
-        </div>
-    </div>
-    
+	<!-- Not connected -->
+	<div class="container" id="not_connected">
+		<div class="row">
+			<div class="alert alert-danger">Impossible de se connecter.</div>
+		</div>
+	</div>
+
+	<!-- Dashboard -->
+	<div class="container" id="main">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span id="dashboard-date">--</span> <span
+					class="badge badge-default pull-right" id="dashboard-program">--</span>
+			</div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Zone</th>
+						<th>Mode</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="template-dashboard-zone">
+					<tr class="template">
+						<td class="template-dashboard-name">--</td>
+						<td class="template-dashboard-mode">--</td>
+						<td>
+							<div class="btn-group">
+								<button type="button" class="btn btn-danger dropdown-toggle"
+									data-toggle="dropdown" aria-expanded="false">
+									<span class="glyphicon glyphicon-time"></span>&nbsp;<span
+										class="caret"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right" role="menu">
+									<li><a href="#">15 minutes</a></li>
+									<li><a href="#">30 minutes</a></li>
+									<li><a href="#">45 minutes</a></li>
+									<li><a href="#">1 heure</a></li>
+									<li class="divider"></li>
+									<li><a href="#">1 journée</a></li>
+									<li><a href="#">fin de semaine</a></li>
+								</ul>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Calendrier -->
+	<div class="container" id="cal">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Programme</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>--</td>
+					<td>Programme n°1</td>
+				</tr>
+				<tr>
+					<td>Mercredi 14 aout 2015</td>
+					<td>Vacances</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Règles -->
+	<div class="container" id="rules">
+		<div class="panel panel-default">
+			<div class="panel-heading">Programme n°1</div>
+			<div class="panel-body">
+				<ul>
+					<li>Salon, Chambres : <span class="label label-danger"><i
+							class="glyphicon glyphicon-fire"></i>&nbsp;Confort</span></li>
+					<li>Salle de bain : <span class="label label-success"><i
+							class="glyphicon glyphicon-euro"></i>&nbsp;Economique</span></li>
+				</ul>
+			</div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Jours</th>
+						<th>Heure</th>
+						<th>Zones</th>
+						<th>Mode</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Jours de la semaine</td>
+						<td>6:00</td>
+						<td>Salles de bain</td>
+						<td>Confort</td>
+					</tr>
+					<tr>
+						<td>Jours de la semaine</td>
+						<td>8:00</td>
+						<td>Salles de bain</td>
+						<td>Economique</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Debug -->
+	<div class="container" id="debug">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Raspberry Pi GPIO <a id="debug_refresh" class="btn btn-default"><i
+					class="glyphicon glyphicon-refresh"></i></a>
+			</div>
+			<div class="panel-body" id="debug_settings"></div>
+		</div>
+	</div>
+
 </body>
 </html>

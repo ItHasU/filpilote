@@ -1,105 +1,39 @@
-var Controller = function() {
-	this.zones = {}
-	this.mode_str = [ "normal", "zero", "freeze", "eco" ];
+// -- Constants ---------------------------------------------------------------
+
+var MODES_HTML = {
+	4 : '<i class="glyphicon glyphicon-fire"></i>&nbsp;Confort',
+	3 : '<i class="glyphicon glyphicon-euro"></i>&nbsp;Economique',
+	2 : '<i class="glyphicon glyphicon-briefcase"></i>&nbsp;Hors-gel',
+	1 : '<i class="glyphicon glyphicon-off"></i>&nbsp;Eteint',
 };
+var DAYS_HTML = [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi",
+		"Vendredi", "Samedi" ];
 
-Controller.prototype.init = function() {
-	var that = this;
-	$('#navbar-collapse-main').collapse({
-		'toggle' : false
-	});
+// -- Globals -----------------------------------------------------------------
 
-	// Chargement de la page principale
-	this.loadPage("#main");
+var config = undefined;
 
-	// -- Binding des actions --
-	// Menu principal (pages)
-	$("a[href^='#']").click(function() {
-		that.loadPage($(this).prop("href"));
-	});
-	// Page debug
-	$("#debug_refresh").click(function() {
-		that.debug_settings();
-	});
+// -- Tools -------------------------------------------------------------------
 
-	this.refresh(true);
-
-	$("#debug_test_post").click(
-			function() {
-				var zone_id = $("#debug_test_post_zone").val();
-				var value = $("#debug_test_post_value").val();
-
-				$.post("/api/zone/" + zone_id + "/" + value).success(
-						function(data) {
-							$("#debug_test_post_result").html(
-									"<pre>" + JSON.stringify(data, null, 2)
-											+ "</pre>");
-						});
-			});
-}
-
-Controller.prototype.refresh = function(create) {
-	var that = this;
-	$.get("/api/zones", function(data) {
-		that.refresh_cb(data, create);
-	});
-}
-
-Controller.prototype.bind_button = function(elt, zone_id, mode) {
-	var that = this;
-	elt.click(function() {
-		that.set_mode(zone_id, mode);
-	});
-}
-
-Controller.prototype.set_mode = function(zone_id, mode) {
-	var that = this;
-	$.post("/api/zone/" + zone_id + "/" + mode).success(function(data) {
-		that.refresh(false);
-	});
-}
-
-Controller.prototype.refresh_cb = function(data, create) {
-	if (create) {
-		this.zones = data;
-		$("#template-dashboard-zone .render").remove();
+function time2string(instant) {
+	if (instant == undefined) {
+		instant = new Date();
 	}
-	for ( var i in this.zones) {
-		var template = null;
-		var zone = this.zones[i];
-		if (create) {
-			// Recherche du template et récupération des données
-			zone.elt = template = $("#template-dashboard-zone").clone();
-			// Mise à jour de la zone
-			template.find(".zone").addClass("zone-" + i);
-			template.removeClass("template");
-			// Bind des interactions
-			var buttons = template.find(".btn");
-			var modes = [ 0, 3, 2, 1 ];
-			for (var j = 0; j < 4; j++) {
-				this.bind_button($(buttons[j]), i, modes[j]);
-			}
-			// Insertion de l'élément
-			$("#dashboard-zones").append(template);
-		} else {
-			this.zones[i].mode = data[i].mode;
-			template = this.zones[i].elt;
-		}
-		// Mise à jour du mode
-		template.find(".mode").removeClass("active");
-		template.find(".mode-" + this.mode_str[zone.mode]).addClass("active");
-	}
+	var res = "";
+	res += DAYS_HTML[instant.getDay()] + " ";
+	res += instant.getDate() + "/" + instant.getMonth() + "/"
+			+ instant.getYear();
+	var minutes = instant.getHours() * 60 + instant.getMinutes();
+	res += " - " + minutes2string(minutes);
+	return res;
 }
 
-Controller.prototype.debug_settings = function() {
-	$.get("/api/debug").success(
-			function(data) {
-				$("#debug_settings").html(
-						"<pre>" + JSON.stringify(data, null, 2) + "</pre>");
-			});
+function minutes2string(minutes) {
+	return Math.floor(minutes / 60) + ":" + ((minutes % 60) < 10 ? "0" : "")
+			+ (minutes % 60);
 }
 
-Controller.prototype.loadPage = function(page_id) {
+function router_page(page_id) {
 	try {
 		if (page_id[0] != "#") {
 			page_id = "#" + page_id.split("#")[1];
@@ -116,11 +50,108 @@ Controller.prototype.loadPage = function(page_id) {
 	$('#navbar-collapse-main').collapse('hide');
 }
 
-var myController = null;
+// -- Init --------------------------------------------------------------------
+
+function reset() {
+	config = undefined;
+	router_page("#not_connected");
+
+	// -- Dashboard --
+	$("#template-dashboard-zone .render").remove();
+	// -- Calendars --
+	// TODO
+	// -- Programmes --
+	// TODO
+}
+
+/**
+ * Bind les interactions et initialise la page
+ */
+function init() {
+	$('#navbar-collapse-main').collapse({
+		'toggle' : false
+	});
+
+	// -- Gestion des liens entre pages --
+	$("a[href^='#']").click(function() {
+		router_page($(this).prop("href"));
+	});
+
+	// -- Page debug --
+	$("#debug_refresh").click(debug);
+
+	// -- Initialisation de la page --
+	reset();
+	$.get("/api/config", _init_cb);
+}
+
+function _init_cb(data) {
+	config = data;
+
+	// -- Dashboard : Zones --
+	for ( var i in config.zones) {
+		var zone = config.zones[i];
+		// Création du rendu à partir du template
+		var template = zone.elt = $("#template-dashboard-zone .template")
+				.clone();
+		template.removeClass("template").addClass("render");
+		// Mise à jour de la zone
+		template.find(".template-dashboard-name").html(zone.name);
+		$("#template-dashboard-zone").append(template);
+	}
+	router_page("#main");
+	refresh();
+}
+
+function refresh() {
+	// -- Dashboard : Mise à jour de la date --
+	$("#dashboard-date").html(time2string());
+
+	// -- Dashboard : Récupération des status --
+	$.get("/api/status", function(data) {
+		_refresh_cb(data);
+	}).error(function() {
+		reset();
+	});
+}
+
+function _refresh_cb(status) {
+	// -- MAJ programme --
+	var program = config.programs[status.program];
+	if (program == undefined) {
+		// On a besoin de rafraîchir la page car on ne connait pas le programme
+		reset();
+		return;
+	}
+	$("#dashboard-program").html(program.name);
+
+	// -- Mise à jours des zones --
+	for ( var zone_id in config.zones) {
+		var zone = config.zones[zone_id];
+		var mode = status.zones[zone_id]
+		if (zone == undefined) {
+			// On a besoin de rafraîchir la page car la zone est inconnue
+			reset();
+			return;
+		}
+		var template = zone.elt;
+		template.find(".template-dashboard-mode").html(MODES_HTML[mode]);
+	}
+}
+
+function debug() {
+	$.get("/api/debug").success(
+			function(data) {
+				$("#debug_settings").html(
+						"<pre>" + JSON.stringify(data, null, 2) + "</pre>");
+			});
+}
+
+// -- Script ------------------------------------------------------------------
+
 $(document).ready(function() {
-	myController = new Controller();
-	myController.init();
+	init();
 	setInterval(function() {
-		myController.refresh();
-	}, 1000);
+		refresh();
+	}, 2000);
 });
