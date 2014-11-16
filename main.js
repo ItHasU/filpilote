@@ -103,6 +103,7 @@ var status = {
 	"zones" : {},
 	"gpio_devices" : {},
 	"gpio_devices_debug" : {},
+	"manuals" : [],
 }
 
 // -- App ---------------------------------------------------------------------
@@ -130,10 +131,28 @@ app.get("/api/status", function(req, res) {
 	res.send(status);
 });
 
-// -- API : Debug -------------------------------------------------------------
+// -- API : Schedule ----------------------------------------------------------
 
-app.get("/api/debug", function(req, res) {
-	res.send(status.gpio_devices_debug);
+app.get("/api/manual/:zone/:mode/:minutes", function(req, res) {
+	try {
+		var zone_id = parseInt(req.params.zone);
+		var mode = parseInt(req.params.mode);
+		var duration_minutes = parseInt(req.params.minutes);
+		var start_ms = Date.now();
+
+		manuals_push(zone_id, mode, start_ms, duration_minutes);
+
+		res.send({
+			"msg" : "success"
+		});
+	} catch (e) {
+		console.error(e);
+		res.send({
+			"msg" : "error: Invalid parameter",
+			"exception" : e
+		});
+	}
+
 });
 
 // -- API : Set program -------------------------------------------------------
@@ -150,12 +169,92 @@ app.post("/api/prog/:id", function(req, res) {
 	}
 });
 
+// -- Manual schedules --------------------------------------------------------
+
+/**
+ * Regarde dans les règles temporaires s'il y a une correspondance. Renvoie
+ * undefined si aucun résultat.
+ */
+function manuals_get(zone_id, date) {
+	var instant;
+	if (date === undefined) {
+		instant = Date.now();
+	} else {
+		instant = date.getTime();
+	}
+
+	var res = undefined;
+	for (var i = 0; i < status.manuals.length; i++) {
+		var rule = status.manuals[i];
+
+		// Est-ce que la zone est dans la règle ?
+		if (rule.zone != zone_id) {
+			continue;
+		}
+
+		// Est-ce que la date est concernée ?
+		if (rule.from_utc <= instant && instant < rule.to_utc) {
+			// Entre le début et la fin => OK
+		} else {
+			continue;
+		}
+
+		// On prend la règle la plus confortable
+		if (res === undefined || res < rule.mode) {
+			res = rule.mode;
+		}
+	}
+	return res;
+}
+
+/**
+ * Force une ou plusieurs zones pendant un certain temps.
+ */
+function manuals_push(zone_id, mode, start_ms, duration_minutes) {
+	var finish_ms = start_ms + duration_minutes * 60 * 1000;
+	var tmp_rule = {
+		zone : zone_id,
+		from_utc : start_ms,
+		to_utc : finish_ms,
+		mode : mode,
+	}
+	status.manuals.push(tmp_rule);
+}
+
+/**
+ * Fait le ménage dans les programmations. date est optionnel.
+ */
+function manuals_clear(date) {
+	var instant;
+	if (date === undefined) {
+		instant = Date.now();
+	} else {
+		instant = date.getTime();
+	}
+
+	var res = undefined;
+	var remaining = [];
+	for (var i = 0; i < status.manuals.length; i++) {
+		if (status.manuals[i].to_utc <= instant) {
+			// Ne sera plus jamais concernée, ne pas garder
+		} else {
+			// Garder, en cours ou dans le futur
+			remaining.push(status.manuals[i]);
+		}
+	}
+	status.manuals = remaining;
+}
+
 // -- Programs ----------------------------------------------------------------
 
 /**
  * Recherche le mode de fonctionnement pour une zone dans un programme donné à
  * un instant précis. On prend celui par défaut, ensuite on passe toutes les
  * règles. Si plusieures règles correspondent, on prend la plus confortable.
+ * 
+ * Ne prend pas en charge les règles temporaires.
+ * 
+ * Renvoi 4 si rien de trouvé.
  */
 function programs_get(program_id, zone_id, instant) {
 	var program = config.programs[program_id];
@@ -326,7 +425,10 @@ function gpios_update() {
 
 function status_update() {
 	for ( var zone_id in config.zones) {
-		var mode = programs_get(status.program, zone_id);
+		var mode = manuals_get(zone_id);
+		if (mode === undefined) {
+			mode = programs_get(status.program, zone_id);
+		}
 		status.zones[zone_id] = mode;
 	}
 	gpios_update();
@@ -338,6 +440,7 @@ gpios_open();
 status_update();
 var update_interval = setInterval(function() {
 	status_update();
+	manuals_clear();
 }, 5000);
 
 var server = app.listen(5000, function() {

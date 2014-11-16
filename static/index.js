@@ -22,7 +22,7 @@ function time2string(instant) {
 	var res = "";
 	res += DAYS_HTML[instant.getDay()] + " ";
 	res += instant.getDate() + "/" + instant.getMonth() + "/"
-			+ instant.getYear();
+			+ (1900 + instant.getYear());
 	var minutes = instant.getHours() * 60 + instant.getMinutes();
 	res += " - " + minutes2string(minutes);
 	return res;
@@ -50,6 +50,22 @@ function router_page(page_id) {
 	$('#navbar-collapse-main').collapse('hide');
 }
 
+// -- Bind --------------------------------------------------------------------
+
+function bind_manual(zone_id, e) {
+	var minutes_str = e.attr("data-minutes");
+	if (minutes_str == undefined) {
+		return;
+	}
+	e.click(function() {
+		var url = "/api/manual/" + zone_id + "/" + 4 + "/" + minutes_str;
+		$.get(url, function() {
+			// Only refresh once returned
+			refresh();
+		});
+	});
+}
+
 // -- Init --------------------------------------------------------------------
 
 function reset() {
@@ -58,6 +74,7 @@ function reset() {
 
 	// -- Dashboard --
 	$("#template-dashboard-zone .render").remove();
+	$("#template-dashboard-manual .render").remove();
 	// -- Calendars --
 	// TODO
 	// -- Programmes --
@@ -97,6 +114,11 @@ function _init_cb(data) {
 		template.removeClass("template").addClass("render");
 		// Mise à jour de la zone
 		template.find(".template-dashboard-name").html(zone.name);
+		// Bind des minuteurs
+		template.find("a[data-minutes]").each(function(j, e) {
+			bind_manual(i, $(e));
+		});
+		// On ne change pas le mode, c'est le status qui fera ça
 		$("#template-dashboard-zone").append(template);
 	}
 	router_page("#main");
@@ -137,10 +159,36 @@ function _refresh_cb(status) {
 		var template = zone.elt;
 		template.find(".template-dashboard-mode").html(MODES_HTML[mode]);
 	}
+
+	// -- Mise à jours des "manuels" --
+	$("#template-dashboard-manual .render").remove();
+	if (status.manuals.length) {
+		$("#panel-dashboard-manual").show();
+		for (var i = 0; i < status.manuals.length; i++) {
+			var manual = status.manuals[i];
+			// Création du rendu à partir du template
+			var template = $("#template-dashboard-manual .template").clone();
+			template.removeClass("template").addClass("render");
+			// Mise à jour de la ligne
+			template.find(".template-dashboard-zone").html(
+					config.zones[manual.zone].name);
+			template.find(".template-dashboard-mode").html(
+					MODES_HTML[manual.mode]);
+			template.find(".template-dashboard-from").html(
+					time2string(new Date(manual.from_utc)));
+			template.find(".template-dashboard-to").html(
+					time2string(new Date(manual.to_utc)));
+
+			// On ne change pas le mode, c'est le status qui fera ça
+			$("#template-dashboard-manual").append(template);
+		}
+	} else {
+		$("#panel-dashboard-manual").hide();
+	}
 }
 
 function debug() {
-	$.get("/api/debug").success(
+	$.get("/api/status").success(
 			function(data) {
 				$("#debug_settings").html(
 						"<pre>" + JSON.stringify(data, null, 2) + "</pre>");

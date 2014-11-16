@@ -7,8 +7,8 @@ API
 ===
 * /api/config -> config
 * /api/status -> status
-* /api/debug -> status.device_gpios_debug
-* /api/prog/:id # Set program
+* /api/prog/:_id_ # Set program
+* /api/manual/:_zone_/:_mode_/:_minutes_ # Program zone in mode for n minutes
 
 Data structures
 ===============
@@ -33,8 +33,8 @@ Data structures
 * status.zones
 * status.device_gpios
 * status.device\_gpios\_debug
-* status.tmp\_rules[]
-* status.tmp\_rules[].zones[]
-* status.tmp\_rules[].from\_date
-* status.tmp\_rules[].to\_date
-* status.tmp\_rules[].mode
+* status.manuals[]
+* status.manuals[].zone
+* status.manuals[].from\_date
+* status.manuals[].to\_date
+* status.manuals[].mode
