@@ -8,6 +8,7 @@ var MODES_HTML = {
 };
 var DAYS_HTML = [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi",
 		"Vendredi", "Samedi" ];
+var DAYS_SHORT_HTML = [ "Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam." ];
 
 // -- Globals -----------------------------------------------------------------
 
@@ -121,6 +122,66 @@ function _init_cb(data) {
 		// On ne change pas le mode, c'est le status qui fera ça
 		$("#template-dashboard-zone").append(template);
 	}
+
+	// -- Rules : Programs --
+	for ( var i in config.programs) {
+		var program = config.programs[i];
+		var template_main = $("#rule-program-template.template").clone();
+		template_main.removeClass("template").addClass("render");
+		// Mise à jour du nom
+		template_main.find(".rule-program-name").html(program.name);
+		// Mise à jour des modes par défaut
+		for ( var j in program.defaults) {
+			var zone_name = config.zones[j].name;
+			var zone_mode = MODES_HTML[program.defaults[j]];
+
+			var template_default = template_main.find(
+					"#rule-default-template.template").clone();
+			template_default.removeClass("template").addClass("render");
+
+			template_default.find(".rule-default-zone").html(zone_name);
+			template_default.find(".rule-default-mode").html(zone_mode);
+
+			template_main.find("#rule-defaults").append(template_default);
+		}
+		// Mise à jour des règles
+		for (var j = 0; j < program.rules.length; j++) {
+			var rule = program.rules[j];
+
+			var days = "";
+			for (var k = 0; k < rule.days.length; k++) {
+				if (days != "") {
+					days += ", ";
+				}
+				days += DAYS_SHORT_HTML[rule.days[k] % 7];
+			}
+			var from = minutes2string(rule.from);
+			var to = minutes2string(rule.to);
+			var zones = "";
+			for (var k = 0; k < rule.zones.length; k++) {
+				if (zones != "") {
+					zones += ", ";
+				}
+				zones += config.zones[rule.zones[k]].name;
+			}
+			var mode = MODES_HTML[rule.mode];
+
+			var template_item = template_main.find(
+					"#rule-item-template.template").clone();
+			template_item.removeClass("template").addClass("render");
+
+			template_item.find(".rule-item-days").html(days);
+			template_item.find(".rule-item-from").html(from);
+			template_item.find(".rule-item-to").html(to);
+			template_item.find(".rule-item-zone").html(zones);
+			template_item.find(".rule-item-mode").html(mode);
+
+			template_main.find("#rule-items").append(template_item);
+		}
+		// On ajoute l'élément
+		$("#rule-programs").append(template_main);
+	}
+
 	router_page("#main");
 	refresh();
 }
@@ -131,13 +192,13 @@ function refresh() {
 
 	// -- Dashboard : Récupération des status --
 	$.get("/api/status", function(data) {
-		_refresh_cb(data);
+		_refresh_cb_dashboard(data);
 	}).error(function() {
 		reset();
 	});
 }
 
-function _refresh_cb(status) {
+function _refresh_cb_dashboard(status) {
 	// -- MAJ programme --
 	var program = config.programs[status.program];
 	if (program == undefined) {

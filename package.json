@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Matthieu Aubry (ItHasU)",
-  "license": "GPL",
+  "license": "Public Domain",
   "dependencies": {
-    "express": "^4.10.2"
+    "express": "^4.10.2",
   }
 }

@@ -34,7 +34,7 @@
 				<ul class="nav navbar-nav">
 					<li><a href="#cal" class="active"><i
 							class="glyphicon glyphicon-calendar"></i>&nbsp;Calendrier</a></li>
-					<li><a href="#rules" class="active"><i
+					<li><a href="#rule-programs" class="active"><i
 							class="glyphicon glyphicon-time"></i>&nbsp;Règles</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
@@ -74,7 +74,8 @@
 						<td class="template-dashboard-mode">--</td>
 						<td>
 							<div class="btn-group">
-								<button type="button" class="btn btn-xs btn-danger dropdown-toggle"
+								<button type="button"
+									class="btn btn-xs btn-danger dropdown-toggle"
 									data-toggle="dropdown" aria-expanded="false">
 									<span class="glyphicon glyphicon-time"></span>&nbsp;<span
 										class="caret"></span>
@@ -138,38 +139,40 @@
 	</div>
 
 	<!-- Règles -->
-	<div class="container" id="rules">
-		<div class="panel panel-default">
-			<div class="panel-heading">Programme n°1</div>
-			<div class="panel-body">
-				<ul>
-					<li>Salon, Chambres : <span class="label label-danger"><i
-							class="glyphicon glyphicon-fire"></i>&nbsp;Confort</span></li>
-					<li>Salle de bain : <span class="label label-success"><i
-							class="glyphicon glyphicon-euro"></i>&nbsp;Economique</span></li>
-				</ul>
-			</div>
+	<div class="container" id="rule-programs">
+		<div id="rule-program-template" class="panel panel-default template">
+			<div class="panel-heading rule-program-name">--</div>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Zone</th>
+						<th>Mode par défaut</th>
+					</tr>
+				</thead>
+				<tbody id="rule-defaults">
+					<tr id="rule-default-template" class="template">
+						<td class="rule-default-zone"></td>
+						<td class="rule-default-mode"></td>
+					</tr>
+				</tbody>
+			</table>
 			<table class="table">
 				<thead>
 					<tr>
 						<th>Jours</th>
-						<th>Heure</th>
+						<th>A partir de</th>
+						<th>Jusqu'à</th>
 						<th>Zones</th>
 						<th>Mode</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
-						<td>Jours de la semaine</td>
-						<td>6:00</td>
-						<td>Salles de bain</td>
-						<td>Confort</td>
-					</tr>
-					<tr>
-						<td>Jours de la semaine</td>
-						<td>8:00</td>
-						<td>Salles de bain</td>
-						<td>Economique</td>
+				<tbody id="rule-items">
+					<tr id="rule-item-template" class="template">
+						<td class="rule-item-days">--</td>
+						<td class="rule-item-from">--</td>
+						<td class="rule-item-to">--</td>
+						<td class="rule-item-zone">--</td>
+						<td class="rule-item-mode">--</td>
 					</tr>
 				</tbody>
 			</table>
