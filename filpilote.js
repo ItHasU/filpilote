@@ -92,7 +92,7 @@ app.get("/api/status", function(req, res) {
 	res.send(status);
 });
 
-// -- API : Schedule ----------------------------------------------------------
+// -- API : Manuals -----------------------------------------------------------
 
 app.get("/api/manual/:zone/:mode/:minutes", function(req, res) {
 	try {
@@ -113,7 +113,22 @@ app.get("/api/manual/:zone/:mode/:minutes", function(req, res) {
 			"exception" : e
 		});
 	}
+});
 
+app.get("/api/manual/cancel/:id", function(req, res) {
+	try {
+		var manual_id = parseInt(req.params.id);
+		manuals_remove(manual_id);
+		res.send({
+			"msg" : "success"
+		});
+	} catch (e) {
+		console.error(e);
+		res.send({
+			"msg" : "error: Invalid parameter",
+			"exception" : e
+		});
+	}
 });
 
 // -- API : Set program -------------------------------------------------------
@@ -173,13 +188,32 @@ function manuals_get(zone_id, date) {
  */
 function manuals_push(zone_id, mode, start_ms, duration_minutes) {
 	var finish_ms = start_ms + duration_minutes * 60 * 1000;
+	var new_id = 0;
+	for (var i = 0; i < status.manuals.length; i++) {
+		if (status.manuals[i].id > new_id) {
+			new_id = status.manuals[i].id;
+		}
+	}
+	new_id++;
+
 	var tmp_rule = {
+		id : new_id,
 		zone : zone_id,
 		from_utc : start_ms,
 		to_utc : finish_ms,
 		mode : mode,
 	}
 	status.manuals.push(tmp_rule);
+}
+
+function manuals_remove(manual_id) {
+	var to_keep = [];
+	for (var i = 0; i < status.manuals.length; i++) {
+		if (manual_id !== undefined && status.manuals[i].id != manual_id) {
+			to_keep.push(status.manuals[i]);
+		}
+	}
+	status.manuals = to_keep;
 }
 
 /**

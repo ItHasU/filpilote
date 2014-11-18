@@ -38,6 +38,8 @@ API
 * /api/status -> status
 * /api/prog/:_id_ # Set program
 * /api/manual/:_zone_/:_mode_/:_minutes_ # Program zone in mode for n minutes
+* /api/manual/cancel # Cancel all manuals
+* /api/manual/cancel/:_id_ # Cancel manual with given id
 
 Data structures
 ===============
@@ -63,6 +65,7 @@ Data structures
 * status.device_gpios
 * status.device\_gpios\_debug
 * status.manuals[]
+* status.manuals[].id
 * status.manuals[].zone
 * status.manuals[].from\_date
 * status.manuals[].to\_date

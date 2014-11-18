@@ -239,6 +239,14 @@ function _refresh_cb_dashboard(status) {
 					time2string(new Date(manual.from_utc)));
 			template.find(".template-dashboard-to").html(
 					time2string(new Date(manual.to_utc)));
+			(function(id) {
+				template.find(".template-dashboard-remove").click(function() {
+					var api_url = "/api/manual/cancel/" + id;
+					$.get(api_url, function() {
+						refresh();
+					});
+				});
+			})(manual.id);
 
 			// On ne change pas le mode, c'est le status qui fera ça
 			$("#template-dashboard-manual").append(template);
