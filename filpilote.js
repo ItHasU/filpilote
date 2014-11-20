@@ -315,7 +315,6 @@ var fs = require("fs");
 function config_load() {
 	try {
 		var data = fs.readFileSync("./config.json", 'utf-8');
-		console.log(data);
 		config = JSON.parse(data);
 		return true;
 	} catch (e) {
