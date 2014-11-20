@@ -105,16 +105,17 @@ function init() {
 
 function _init_cb(data) {
 	config = data;
+	config.zone_elements = {};
 
 	// -- Dashboard : Zones --
 	for ( var i in config.zones) {
-		var zone = config.zones[i];
+		var zone_name = config.zones[i];
 		// Création du rendu à partir du template
-		var template = zone.elt = $("#template-dashboard-zone .template")
-				.clone();
+		var template = config.zone_elements[i] = $(
+				"#template-dashboard-zone .template").clone();
 		template.removeClass("template").addClass("render");
 		// Mise à jour de la zone
-		template.find(".template-dashboard-name").html(zone.name);
+		template.find(".template-dashboard-name").html(zone_name);
 		// Bind des minuteurs
 		template.find("a[data-minutes]").each(function(j, e) {
 			bind_manual(i, $(e));
@@ -132,7 +133,7 @@ function _init_cb(data) {
 		template_main.find(".rule-program-name").html(program.name);
 		// Mise à jour des modes par défaut
 		for ( var j in program.defaults) {
-			var zone_name = config.zones[j].name;
+			var zone_name = config.zones[j];
 			var zone_mode = MODES_HTML[program.defaults[j]];
 
 			var template_default = template_main.find(
@@ -162,7 +163,7 @@ function _init_cb(data) {
 				if (zones != "") {
 					zones += ", ";
 				}
-				zones += config.zones[rule.zones[k]].name;
+				zones += config.zones[rule.zones[k]];
 			}
 			var mode = MODES_HTML[rule.mode];
 
@@ -210,18 +211,17 @@ function _refresh_cb_dashboard(status) {
 
 	// -- Mise à jours des zones --
 	for ( var zone_id in config.zones) {
-		var zone = config.zones[zone_id];
-		var mode = status.zones[zone_id]
-		if (zone == undefined) {
+		var template = config.zone_elements[zone_id];
+		if (template == undefined) {
 			// On a besoin de rafraîchir la page car la zone est inconnue
 			reset();
 			return;
 		}
-		var template = zone.elt;
+		var mode = status.zones[zone_id]
 		template.find(".template-dashboard-mode").html(MODES_HTML[mode]);
 	}
 
-	// -- Mise à jours des "manuels" --
+	// -- Mise à jours des minuteries ("manuals") --
 	$("#template-dashboard-manual .render").remove();
 	if (status.manuals.length) {
 		$("#panel-dashboard-manual").show();
@@ -232,7 +232,7 @@ function _refresh_cb_dashboard(status) {
 			template.removeClass("template").addClass("render");
 			// Mise à jour de la ligne
 			template.find(".template-dashboard-zone").html(
-					config.zones[manual.zone].name);
+					config.zones[manual.zone]);
 			template.find(".template-dashboard-mode").html(
 					MODES_HTML[manual.mode]);
 			template.find(".template-dashboard-from").html(

@@ -24,7 +24,7 @@ function _gpio_open(status, io) {
  * Fermeture d'une sortie du RPi
  */
 function _gpio_close(status, io) {
-	if (status.gpio === undefined) {
+	if (status.gpio_devices === undefined) {
 		return;
 	} else {
 		var dev = status.gpio_devices[io];
@@ -32,6 +32,7 @@ function _gpio_close(status, io) {
 		dev.reset();
 		dev.unexport();
 		delete status.gpio_devices[io];
+		delete status.gpio_devices_debug[io];
 	}
 }
 
@@ -39,7 +40,7 @@ function _gpio_close(status, io) {
  * Changement de l'état d'une sortie du RPi
  */
 function _gpio_set(status, io, value) {
-	if (status.gpio === undefined) {
+	if (status.gpio_devices === undefined) {
 		return;
 	} else {
 		if (status.gpio_devices[io] !== undefined) {
@@ -67,10 +68,10 @@ exports.init = function(config, status) {
 		console.error(e);
 		return false;
 	}
-	for ( var i_zone in config.zones) {
-		var zone = config.zones[i_zone];
-		for ( var i_io in zone.ios) {
-			_gpio_open(status, zone.ios[i_io]);
+	for ( var zone_id in config) {
+		var ios = config[zone_id];
+		for (var i = 0; i < ios.length; i++) {
+			_gpio_open(status, ios[i]);
 		}
 	}
 	return true;

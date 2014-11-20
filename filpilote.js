@@ -19,7 +19,7 @@ var config = {
 	"driver" : {
 		"module" : "debug",
 		"config" : {
-			"ios" : {
+			"raspberrypi_gpios" : {
 				1 : [ 4, 17 ],
 				2 : [ 27, 22 ],
 				3 : [ 23, 24 ],
@@ -106,7 +106,7 @@ app.get("/api/manual/:zone/:mode/:minutes", function(req, res) {
 		var start_ms = Date.now();
 
 		manuals_push(zone_id, mode, start_ms, duration_minutes);
-
+		status_update();
 		res.send({
 			"msg" : "success"
 		});
@@ -123,6 +123,7 @@ app.get("/api/manual/cancel/:id", function(req, res) {
 	try {
 		var manual_id = parseInt(req.params.id);
 		manuals_remove(manual_id);
+		status_update();
 		res.send({
 			"msg" : "success"
 		});
@@ -326,8 +327,12 @@ function programs_get(program_id, zone_id, instant) {
 
 function driver_init() {
 	try {
-		driver_module = require("./drivers/" + config.driver.module);
-		if (!driver_module.init(config.driver.config, status.driver)) {
+		var module_name = config.driver.module;
+		console.log("Loading module: " + module_name + " ...");
+		driver_module = require("./drivers/" + module_name);
+		status.driver = {}; // Clear
+		if (!driver_module.init(config.driver.config[module_name],
+				status.driver)) {
 			console.error("error: Module failed to load");
 			driver_module = null;
 		}
@@ -337,19 +342,20 @@ function driver_init() {
 		console.error(e);
 		driver_module = null;
 	}
-
 }
 
 function driver_update() {
 	if (driver_module != null) {
 		try {
-			if (!driver_module.update(config.driver, status.driver,
-					status.zones)) {
+			var module_name = config.driver.module;
+			if (!driver_module.update(config.driver.config[module_name],
+					status.driver, status.zones)) {
 				console.error("error: Failed to update zones");
 				driver_module = null;
 			}
 		} catch (e) {
-			console.error("error: Unable to update zones using driver");
+			console
+					.error("error: Exception occured while trying to update zones.");
 			console.error(e);
 			driver_module = null;
 		}
