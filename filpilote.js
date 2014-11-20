@@ -4,61 +4,7 @@
  * Configuration (à l'arrache, directement dans le fichier). Sera modifiée
  * dynamiquement pour prendre en compte le mode courant
  */
-var config = {
-	"modes" : {
-		4 : "Normal",
-		3 : "Economique",
-		2 : "Hors-gel",
-		1 : "Eteint"
-	},
-	"zones" : {
-		1 : "Salon",
-		2 : "Chambres",
-		3 : "Salles de bains",
-	},
-	"driver" : {
-		"module" : "debug",
-		"config" : {
-			"raspberrypi_gpios" : {
-				1 : [ 4, 17 ],
-				2 : [ 27, 22 ],
-				3 : [ 23, 24 ],
-			}
-		}
-	},
-	"programs" : {
-		1 : {
-			"name" : "Semaine de travail",
-			"defaults" : {
-				1 : 4,
-				2 : 4,
-				3 : 2,
-			},
-			"rules" : [ {
-				"days" : [ 1, 2, 3, 4, 5 ],
-				"zones" : [ 3 ],
-				"from" : 360, // 6:00
-				"to" : 510, // 8:30
-				"mode" : 4, // Confort
-			}, {
-				"days" : [ 1, 2, 3, 4, 5 ],
-				"zones" : [ 2 ],
-				"from" : 510, // 8:30
-				"to" : 1020, // 17:00
-				"mode" : 3, // Eco
-			} ]
-		},
-		2 : {
-			"name" : "Personne à la maison",
-			"defaults" : {
-				1 : 2,
-				2 : 2,
-				3 : 2,
-			},
-			"rules" : []
-		},
-	}
-};
+var config = {};
 
 var driver_module = null;
 
@@ -362,6 +308,27 @@ function driver_update() {
 	}
 }
 
+// -- Config ------------------------------------------------------------------
+
+var fs = require("fs");
+
+function config_load() {
+	try {
+		var data = fs.readFileSync("./config.json", 'utf-8');
+		console.log(data);
+		config = JSON.parse(data);
+		return true;
+	} catch (e) {
+		console.error("error: Failed to load config file");
+		console.error(e);
+		return false;
+	}
+}
+
+function config_save() {
+
+}
+
 // -- Status ------------------------------------------------------------------
 
 function status_update() {
@@ -376,6 +343,10 @@ function status_update() {
 }
 
 // -- MAIN --------------------------------------------------------------------
+
+if (!config_load()) {
+	return 1;
+}
 
 driver_init();
 status_update();

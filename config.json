@@ -1,0 +1,55 @@
+{
+	"modes" : {
+		"4" : "Normal",
+		"3" : "Economique",
+		"2" : "Hors-gel",
+		"1" : "Eteint"
+	},
+	"zones" : {
+		"1" : "Salon",
+		"2" : "Chambres",
+		"3" : "Salles de bains"
+	},
+	"driver" : {
+		"module" : "debug",
+		"config" : {
+			"raspberrypi_gpios" : {
+				"1" : [ 4, 17 ],
+				"2" : [ 27, 22 ],
+				"3" : [ 23, 24 ]
+			}
+		}
+	},
+	"programs" : {
+		"1" : {
+			"name" : "Semaine de travail",
+			"defaults" : {
+				"1" : 4,
+				"2" : 4,
+				"3" : 2
+			},
+			"rules" : [ {
+				"days" : [ 1, 2, 3, 4, 5 ],
+				"zones" : [ 3 ],
+				"from" : 360,
+				"to" : 510,
+				"mode" : 4
+			}, {
+				"days" : [ 1, 2, 3, 4, 5 ],
+				"zones" : [ 2 ],
+				"from" : 510,
+				"to" : 1020,
+				"mode" : 3
+			} ]
+		},
+		"2" : {
+			"name" : "Personne à la maison",
+			"defaults" : {
+				"1" : 2,
+				"2" : 2,
+				"3" : 2
+			},
+			"rules" : []
+		}
+	}
+}
