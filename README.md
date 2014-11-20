@@ -45,11 +45,10 @@ Data structures
 ===============
 
 * config
-* config.modes
-* config.modes.id
-* config.zones
-* config.zones.id.name
-* config.zones.id.ios
+* config.modes{mode_id: name}
+* config.zones{zone_id: name}
+* config.driver.module
+* config.driver.config
 * config.programs.id.name
 * config.programs.id.defauts
 * config.programs.id.rules[]

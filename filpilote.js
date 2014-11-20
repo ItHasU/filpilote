@@ -12,17 +12,18 @@ var config = {
 		1 : "Eteint"
 	},
 	"zones" : {
-		1 : {
-			"name" : "Salon",
-			"ios" : [ 4, 17 ]
-		},
-		2 : {
-			"name" : "Chambres",
-			"ios" : [ 27, 22 ]
-		},
-		3 : {
-			"name" : "Salles de bains",
-			"ios" : [ 23, 24 ]
+		1 : "Salon",
+		2 : "Chambres",
+		3 : "Salles de bains",
+	},
+	"driver" : {
+		"module" : "debug",
+		"config" : {
+			"ios" : {
+				1 : [ 4, 17 ],
+				2 : [ 27, 22 ],
+				3 : [ 23, 24 ],
+			}
 		}
 	},
 	"programs" : {
@@ -59,11 +60,14 @@ var config = {
 	}
 };
 
+var driver_module = null;
+
 var status = {
 	"program" : 1,
 	"zones" : {},
-	"gpio_devices" : {},
-	"gpio_devices_debug" : {},
+	"driver" : {},
+	// "gpio_devices" : {},
+	// "gpio_devices_debug" : {},
 	"manuals" : [],
 }
 
@@ -318,101 +322,37 @@ function programs_get(program_id, zone_id, instant) {
 	return res;
 }
 
-// -- GPIO --------------------------------------------------------------------
+// -- Driver ------------------------------------------------------------------
 
-// Chargement du module gpio pour le Raspberry Pi (optionnel)
-var gpio = undefined;
-try {
-	gpio = require("gpio");
-} catch (e) {
-	console.error("error: Unable to load module gpio");
+function driver_init() {
+	try {
+		driver_module = require("./drivers/" + config.driver.module);
+		if (!driver_module.init(config.driver.config, status.driver)) {
+			console.error("error: Module failed to load");
+			driver_module = null;
+		}
+	} catch (e) {
+		console.error("error: Unable to load driver module: "
+				+ config.driver.name);
+		console.error(e);
+		driver_module = null;
+	}
+
 }
 
-/**
- * Initialisation d'une sortie du RPi
- */
-function _gpio_open(io) {
-	if (gpio === undefined) {
-		console.log("gpio: open " + io);
-		return;
-	} else {
-		status.gpio_devices[io] = gpio.export(io, {
-			direction : "out",
-			ready : function() {
-				// Un vilain hack pour gérer un bug
-				setTimeout(function() {
-					status.gpio_devices[io].setDirection("out");
-				}, 100);
+function driver_update() {
+	if (driver_module != null) {
+		try {
+			if (!driver_module.update(config.driver, status.driver,
+					status.zones)) {
+				console.error("error: Failed to update zones");
+				driver_module = null;
 			}
-		});
-	}
-}
-
-/**
- * Fermeture d'une sortie du RPi
- */
-function _gpio_close(io) {
-	if (gpio === undefined) {
-		console.log("gpio: close " + io);
-	} else {
-		var dev = status.gpio_devices[io];
-		dev.removeAllListeners();
-		dev.reset();
-		dev.unexport();
-		delete status.gpio_devices[io];
-	}
-}
-
-/**
- * Changement de l'état d'une sortie du RPi
- */
-function _gpio_set(io, value) {
-	if (gpio === undefined) {
-		console.log("gpio: set " + io + " = " + value);
-	} else {
-		if (status.gpio_devices[io] !== undefined) {
-			status.gpio_devices[io].set(value);
+		} catch (e) {
+			console.error("error: Unable to update zones using driver");
+			console.error(e);
+			driver_module = null;
 		}
-	}
-	status.gpio_devices_debug[io] = value;
-}
-
-// -- Raspberry pi ------------------------------------------------------------
-
-/**
- * Ouverture des GPIOs pour toutes les zones
- */
-function gpios_open() {
-	for ( var i_zone in config.zones) {
-		var zone = config.zones[i_zone];
-		for ( var i_io in zone.ios) {
-			_gpio_open(zone.ios[i_io]);
-		}
-	}
-}
-
-/**
- * Fermeture des GPIOs pour toutes les zones
- */
-function gpios_close() {
-	for ( var io in status.gpio_devices) {
-		_gpio_close(io);
-	}
-}
-
-/** Met à jour les GPIO du RPi en fonction des modes activés sur les radiateurs */
-function gpios_update() {
-	for ( var zone_id in config.zones) {
-		var zone = config.zones[zone_id];
-		var mode = status.zones[zone_id];
-		var io0 = zone.ios[0];
-		var io1 = zone.ios[1];
-
-		var io0_state = (mode & 1) !== 0 ? 1 : 0;
-		var io1_state = (mode & 2) !== 0 ? 1 : 0;
-
-		_gpio_set(io0, io0_state);
-		_gpio_set(io1, io1_state);
 	}
 }
 
@@ -426,12 +366,12 @@ function status_update() {
 		}
 		status.zones[zone_id] = mode;
 	}
-	gpios_update();
+	driver_update();
 }
 
 // -- MAIN --------------------------------------------------------------------
 
-gpios_open();
+driver_init();
 status_update();
 var update_interval = setInterval(function() {
 	status_update();
