@@ -50,7 +50,7 @@ function router_page(page_id) {
 	$(page_id).show();
 	// On cache le menu
 	$('#navbar-collapse-main').collapse('hide');
-	
+
 	if (page_id == "#debug" && editor) {
 		editor.refresh();
 	}
@@ -106,9 +106,15 @@ function init() {
 	var myTextarea = document.querySelector("#debug_config_editor");
 	editor = new CodeMirror(myTextarea, {
 		lineNumbers : true,
-		mode: {
-			name: "javascript",
-			json: true
+		lineWrapping : true,
+		mode : {
+			name : "javascript",
+			json : true
+		},
+		extraKeys : {
+			"Ctrl-S" : function(cm) {
+				config_save_cb();
+			}
 		}
 	});
 	$("#debug_config_save").click(config_save_cb);
@@ -123,7 +129,7 @@ function _init_cb(data) {
 	// Fait en premier, parce qu'on modifie les données après
 	editor.setValue(JSON.stringify(data, true, 2));
 	editor.refresh();
-	
+
 	config = data;
 	config.zone_elements = {};
 
@@ -203,7 +209,11 @@ function _init_cb(data) {
 		$("#rule-programs").append(template_main);
 	}
 
-	router_page("#main");
+	var currentPage = document.location.hash;
+	if (!currentPage || currentPage.length < 2) {
+		currentPage = "#main";
+	}
+	router_page(currentPage);
 	refresh();
 }
 
@@ -289,8 +299,38 @@ function config_load_cb() {
 }
 
 function config_save_cb() {
-	var value = editor.getValue();
-	console.log(value);
+	var valueAsString = editor.getValue();
+	var valueAsObject;
+	try {
+		valueAsObject = JSON.parse(valueAsString);
+	} catch (e) {
+		console.error(e);
+		$("#debug_config").removeClass("panel-default");
+		$("#debug_config").addClass("panel-danger");
+		return;
+	}
+
+	$("#debug_config").removeClass("panel-danger");
+	$("#debug_config").addClass("panel-default");
+
+	$.ajax({
+		url : '/api/config',
+		type : 'POST',
+		contentType : 'application/json',
+		data : JSON.stringify(valueAsObject)
+	}).success(function(res) {
+		$("#debug_config").removeClass("panel-default");
+		$("#debug_config").removeClass("panel-success");
+		$("#debug_config").removeClass("panel-error");
+		if (res === true) {
+			$("#debug_config").addClass("panel-success");
+			setTimeout(function() {
+				document.location.reload(true);
+			}, 3000);
+		} else {
+			$("#debug_config").addClass("panel-error");
+		}
+	});
 }
 
 // -- Script ------------------------------------------------------------------

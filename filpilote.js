@@ -12,15 +12,14 @@ var status = {
 	"program" : 1,
 	"zones" : {},
 	"driver" : {},
-	// "gpio_devices" : {},
-	// "gpio_devices_debug" : {},
 	"manuals" : [],
 }
 
 // -- App ---------------------------------------------------------------------
 
-var express = require('express')
-var app = express()
+var express = require('express');
+var bodyParser = require('body-parser');
+var app = express();
 
 // -- Static files ------------------------------------------------------------
 
@@ -29,11 +28,26 @@ app.use(express.static('static', {
 	index : "index.html",
 	redirect : false,
 }));
+app.use(bodyParser.json());
 
 // -- API : Config ------------------------------------------------------------
 
 app.get("/api/config", function(req, res) {
 	res.send(config);
+});
+
+app.post("/api/config", function(req, res) {
+	console.log("New config !");
+	if (req.body) {
+		console.log("Saving ...");
+		// OK, on a une config
+		if (config_save(req.body)) {
+			console.log("OK !");
+			res.send(app_reload());
+			return;
+		}
+	}
+	res.send(false);
 });
 
 // -- API : Status ------------------------------------------------------------
@@ -308,6 +322,25 @@ function driver_update() {
 	}
 }
 
+function driver_destroy() {
+	if (driver_module != null) {
+		try {
+			var module_name = config.driver.module;
+			if (!driver_module.destroy(config.driver.config[module_name],
+					status.driver, status.zones)) {
+				console.error("error: Failed to update zones");
+			}
+			driver_module = null;
+		} catch (e) {
+			console
+					.error("error: Exception occured while trying to close module.");
+			console.error(e);
+			driver_module = null;
+		}
+	}
+	driver_module = null;
+}
+
 // -- Config ------------------------------------------------------------------
 
 var fs = require("fs");
@@ -324,8 +357,24 @@ function config_load() {
 	}
 }
 
-function config_save() {
-
+function config_save(new_config) {
+	// On transforme systématiquement en objet
+	// pour être sûr qu'on sera capable de relire plus tard
+	try {
+		if (typeof (new_config) === 'string') {
+			new_config = JSON.parse(new_config);
+		}
+		var new_config_as_string = JSON.stringify(new_config, true, 2);
+		fs.writeFileSync("./config.json", new_config_as_string, {
+			encoding : 'utf-8',
+			flag : 'w'
+		});
+		return true;
+	} catch (e) {
+		console.error("error: Failed to save config file");
+		console.error(e);
+		return false;
+	}
 }
 
 // -- Status ------------------------------------------------------------------
@@ -341,14 +390,33 @@ function status_update() {
 	driver_update();
 }
 
+// -- App ---------------------------------------------------------------------
+
+function app_reload() {
+	driver_destroy();
+	config = {};
+	status = {
+		"program" : 1,
+		"zones" : {},
+		"driver" : {},
+		"manuals" : [],
+	}
+
+	if (!config_load()) {
+		return false;
+	}
+
+	driver_init();
+	status_update();
+	return true;
+}
+
 // -- MAIN --------------------------------------------------------------------
 
-if (!config_load()) {
+if (!app_reload()) {
 	return 1;
 }
 
-driver_init();
-status_update();
 var update_interval = setInterval(function() {
 	status_update();
 	manuals_clear();
@@ -359,7 +427,3 @@ var server = app.listen(5000, function() {
 	var port = server.address().port
 	console.log('Listening at http://%s:%s', host, port)
 });
-
-// clearInterval(update_interval);
-// update_interval = undefined;
-// gpios_close();
