@@ -14,6 +14,12 @@
 	type="text/css" />
 <link href="/index.css" media="screen" rel="stylesheet" type="text/css" />
 
+<link href="/index.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="js/codemirror.css">
+<script src="js/codemirror.js"></script>
+<script src="js/cm.mode.javascript.js"></script>
+
 <script src="/js/jquery.min.js"></script>
 <script src="/bootstrap/js/bootstrap.min.js"></script>
 <script src="/index.js"></script>
@@ -186,10 +192,24 @@
 	<div class="container" id="debug">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				JSON Status <a id="debug_refresh" class="btn btn-default"><i
-					class="glyphicon glyphicon-refresh"></i></a>
+				JSON Status <a id="debug_refresh" class="btn btn-default"
+					title="Mettre à jour"><i class="glyphicon glyphicon-refresh"></i></a>
 			</div>
 			<div class="panel-body" id="debug_settings"></div>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Configuration
+				<!-- Enregistrement de la configuration -->
+				<a id="debug_config_save" class="btn btn-default"
+					title="Sauvegarder la configuration"><i
+					class="glyphicon glyphicon-floppy-disk"></i></a>
+			</div>
+			<div id="debug_config_editor" class="panel-body"
+				style="padding: 0px;">
+				<!-- Container for the config editor -->
+			</div>
 		</div>
 	</div>
 

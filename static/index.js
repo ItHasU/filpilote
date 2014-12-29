@@ -13,6 +13,7 @@ var DAYS_SHORT_HTML = [ "Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam." ]
 // -- Globals -----------------------------------------------------------------
 
 var config = undefined;
+var editor = undefined;
 
 // -- Tools -------------------------------------------------------------------
 
@@ -49,6 +50,10 @@ function router_page(page_id) {
 	$(page_id).show();
 	// On cache le menu
 	$('#navbar-collapse-main').collapse('hide');
+	
+	if (page_id == "#debug" && editor) {
+		editor.refresh();
+	}
 }
 
 // -- Bind --------------------------------------------------------------------
@@ -97,6 +102,16 @@ function init() {
 
 	// -- Page debug --
 	$("#debug_refresh").click(debug);
+	// Config
+	var myTextarea = document.querySelector("#debug_config_editor");
+	editor = new CodeMirror(myTextarea, {
+		lineNumbers : true,
+		mode: {
+			name: "javascript",
+			json: true
+		}
+	});
+	$("#debug_config_save").click(config_save_cb);
 
 	// -- Initialisation de la page --
 	reset();
@@ -104,6 +119,11 @@ function init() {
 }
 
 function _init_cb(data) {
+	// -- Debug : config editor --
+	// Fait en premier, parce qu'on modifie les données après
+	editor.setValue(JSON.stringify(data, true, 2));
+	editor.refresh();
+	
 	config = data;
 	config.zone_elements = {};
 
@@ -262,6 +282,15 @@ function debug() {
 				$("#debug_settings").html(
 						"<pre>" + JSON.stringify(data, null, 2) + "</pre>");
 			});
+}
+
+function config_load_cb() {
+	$.get("/api/config", _init)
+}
+
+function config_save_cb() {
+	var value = editor.getValue();
+	console.log(value);
 }
 
 // -- Script ------------------------------------------------------------------
