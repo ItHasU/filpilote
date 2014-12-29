@@ -51,7 +51,7 @@ function router_page(page_id) {
 	// On cache le menu
 	$('#navbar-collapse-main').collapse('hide');
 
-	if (page_id == "#debug" && editor) {
+	if (page_id == "#rule-programs" && editor) {
 		editor.refresh();
 	}
 }
@@ -96,7 +96,7 @@ function init() {
 	});
 
 	// -- Gestion des liens entre pages --
-	$("a[href^='#']").click(function() {
+	$("a[href^='#'].page-link").click(function() {
 		router_page($(this).prop("href"));
 	});
 
