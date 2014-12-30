@@ -72,6 +72,15 @@ function bind_manual(zone_id, e) {
 	});
 }
 
+function bind_program(program_id, e) {
+	e.click(function() {
+		var url = "/api/prog/" + program_id;
+		$.get(url, function() {
+			refresh();
+		});
+	});
+}
+
 // -- Init --------------------------------------------------------------------
 
 function reset() {
@@ -150,6 +159,20 @@ function _init_cb(data) {
 		$("#template-dashboard-zone").append(template);
 	}
 
+	// -- Menu : Programs --
+	for ( var i in config.programs) {
+		var program = config.programs[i];
+		var template_main = $("#nav-programs-template .template").clone();
+		template_main.removeClass("template").addClass("render");
+		// Mise à jour du nom
+		var nav_link = template_main.find("a");
+		nav_link.html(program.name);
+		// Bind de la callback
+		bind_program(i, nav_link);
+		// On ajoute l'élément
+		$("#nav-programs-template").append(template_main);
+	}
+
 	// -- Rules : Programs --
 	for ( var i in config.programs) {
 		var program = config.programs[i];
@@ -209,6 +232,7 @@ function _init_cb(data) {
 		$("#rule-programs").append(template_main);
 	}
 
+	// -- Router --
 	var currentPage = document.location.hash;
 	if (!currentPage || currentPage.length < 2) {
 		currentPage = "#main";
