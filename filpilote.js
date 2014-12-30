@@ -98,10 +98,20 @@ app.get("/api/manual/cancel/:id", function(req, res) {
 
 // -- API : Set program -------------------------------------------------------
 
-app.post("/api/prog/:id", function(req, res) {
+app.get("/api/prog/:id", function(req, res) {
 	try {
 		var id = parseInt(req.params.id);
-		// TODO
+		if (config.programs[id] === undefined) {
+			res.send({
+				"msg" : "error: Program not found"
+			});
+		} else {
+			status.program = id;
+			status_update();
+			res.send({
+				"msg" : "success"
+			});
+		}
 	} catch (e) {
 		res.send({
 			"msg" : "Exception thrown",
