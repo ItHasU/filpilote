@@ -1,0 +1,16 @@
+{
+	"name": "Radiateurs",
+	"description": "Application dédiée de gestion des radiateurs par fil pilote.",
+	"icons": {
+		"60": "/media/icon-60.png",
+		"128": "/media/icon-128.png",
+		"512": "/media/icon-512.png"
+	},
+	"developer": {
+		"name": "Matthieu Aubry",
+		"url": "http://ithasu.org/"
+	},
+	"default_locale": "fr",
+	"fullscreen": true,
+	"orientation": [ "portrait" ]
+}

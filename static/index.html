@@ -1,37 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Radiateurs</title>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link REL="SHORTCUT ICON" HREF="/media/icon.png">
-<link rel="apple-touch-icon" sizes="256x256" href="/media/icon.png">
+	<title>Radiateurs</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="/bootstrap/css/bootstrap.css" rel="stylesheet"
-	type="text/css" />
-<link href="/bootstrap/css/bootstrap-theme.css" rel="stylesheet"
-	type="text/css" />
-<link href="/index.css" media="screen" rel="stylesheet" type="text/css" />
+	<link rel="manifest" href="manifest.json">
+	<link rel="SHORTCUT ICON" href="/media/icon-128.png">
+	
+	<meta name="application-name" content="Radiateurs">
+	<link rel="icon" sizes="128x128" href="/media/icon-128.png">
+	<link rel="icon" sizes="512x512" href="/media/icon-512.png">
 
-<link href="/index.css" rel="stylesheet" type="text/css" />
+	<link href="/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="/bootstrap/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+	<link href="/index.css" media="screen" rel="stylesheet" type="text/css" />
 
-<link rel="stylesheet" href="js/codemirror.css">
-<script src="js/codemirror.js"></script>
-<script src="js/cm.mode.javascript.js"></script>
+	<link href="/index.css" rel="stylesheet" type="text/css" />
 
-<script src="/js/jquery.min.js"></script>
-<script src="/bootstrap/js/bootstrap.min.js"></script>
-<script src="/index.js"></script>
+	<link rel="stylesheet" href="js/codemirror.css">
+	<script src="js/codemirror.js"></script>
+	<script src="js/cm.mode.javascript.js"></script>
+
+	<script src="/js/jquery.min.js"></script>
+	<script src="/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/index.js"></script>
 </head>
+
 <body>
 	<nav class="navbar navbar-default" role="navigation">
 		<div class="container-fluid">
 			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed"
-					data-toggle="collapse" data-target="#navbar-collapse-main">
-					<span class="sr-only">Navigation</span> <span class="icon-bar"></span>
-					<span class="icon-bar"></span> <span class="icon-bar"></span>
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-main">
+					<span class="sr-only">Navigation</span>  <span class="icon-bar"></span>
+					<span class="icon-bar"></span>  <span class="icon-bar"></span>
 				</button>
 				<a class="navbar-brand page-link" href="#main"><i
 					class="glyphicon glyphicon-fire"></i>&nbsp;Contrôle</a>
@@ -39,20 +43,23 @@
 			<div class="collapse navbar-collapse" id="navbar-collapse-main">
 				<ul class="nav navbar-nav">
 					<!-- Programmes -->
-					<li class="dropdown"><a href="#" class="dropdown-toggle"
-						data-toggle="dropdown" role="button" aria-expanded="false"><span
+					<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span
 							class="glyphicon glyphicon-dashboard"></span>&nbsp;Programmes <span
 							class="caret"></span> </a>
 						<ul class="dropdown-menu" role="menu" id="nav-programs-template">
-							<li class="template"><a href="#">--</a></li>
-						</ul></li>
+							<li class="template"><a href="#">--</a>
+							</li>
+						</ul>
+					</li>
 					<!-- Règles -->
 					<li><a href="#rule-programs" class="active page-link"><i
-							class="glyphicon glyphicon-wrench"></i>&nbsp;Configuration</a></li>
+							class="glyphicon glyphicon-wrench"></i>&nbsp;Configuration</a>
+					</li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<li><a href="#debug" class="active page-link"><i
-							class="glyphicon glyphicon-exclamation-sign"></i>&nbsp;Debug</a></li>
+							class="glyphicon glyphicon-exclamation-sign"></i>&nbsp;Debug</a>
+					</li>
 				</ul>
 			</div>
 		</div>
@@ -70,8 +77,7 @@
 	<div class="container" id="main">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<span id="dashboard-date">--</span> <span
-					class="badge badge-default pull-right" id="dashboard-program">--</span>
+				<span id="dashboard-date">--</span>  <span class="badge badge-default pull-right" id="dashboard-program">--</span>
 			</div>
 			<table class="table">
 				<thead>
@@ -87,17 +93,17 @@
 						<td class="template-dashboard-mode">--</td>
 						<td>
 							<div class="btn-group">
-								<button type="button"
-									class="btn btn-xs btn-danger dropdown-toggle"
-									data-toggle="dropdown" aria-expanded="false">
-									<span class="glyphicon glyphicon-time"></span>&nbsp;<span
-										class="caret"></span>
+								<button type="button" class="btn btn-xs btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+									<span class="glyphicon glyphicon-time"></span>&nbsp;<span class="caret"></span>
 								</button>
 								<ul class="dropdown-menu dropdown-menu-right" role="menu">
-									<li><a href="#" data-minutes="60">1 heure</a></li>
-									<li><a href="#" data-minutes="120">2 heures</a></li>
+									<li><a href="#" data-minutes="60">1 heure</a>
+									</li>
+									<li><a href="#" data-minutes="120">2 heures</a>
+									</li>
 									<li class="divider"></li>
-									<li><a>Avancé ...</a></li>
+									<li><a>Avancé ...</a>
+									</li>
 								</ul>
 							</div>
 						</td>
@@ -125,7 +131,8 @@
 						<td class="template-dashboard-from"></td>
 						<td class="template-dashboard-to"></td>
 						<td><a class="template-dashboard-remove"><i
-								class="glyphicon glyphicon-remove"></i></a></td>
+								class="glyphicon glyphicon-remove"></i></a>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -138,16 +145,14 @@
 			<div class="panel-heading">
 				Configuration
 				<!-- Enregistrement de la configuration -->
-				<a id="debug_config_save" class="btn btn-default"
-					title="Sauvegarder la configuration"><i
+				<a id="debug_config_save" class="btn btn-default" title="Sauvegarder la configuration"><i
 					class="glyphicon glyphicon-floppy-disk"></i></a>
 			</div>
-			<div id="debug_config_editor" class="panel-body"
-				style="padding: 0px;">
+			<div id="debug_config_editor" class="panel-body" style="padding: 0px;">
 				<!-- Container for the config editor -->
 			</div>
 		</div>
-		
+
 		<div id="rule-program-template" class="panel panel-default template">
 			<div class="panel-heading rule-program-name">--</div>
 			<table class="table">
@@ -191,12 +196,12 @@
 	<div class="container" id="debug">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				JSON Status <a id="debug_refresh" class="btn btn-default"
-					title="Mettre à jour"><i class="glyphicon glyphicon-refresh"></i></a>
+				JSON Status <a id="debug_refresh" class="btn btn-default" title="Mettre à jour"><i class="glyphicon glyphicon-refresh"></i></a>
 			</div>
 			<div class="panel-body" id="debug_settings"></div>
 		</div>
 	</div>
 
 </body>
+
 </html>
