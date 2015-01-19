@@ -3,8 +3,8 @@
 var MODES_HTML = {
 	4 : '<i class="glyphicon glyphicon-fire"></i>&nbsp;Confort',
 	3 : '<i class="glyphicon glyphicon-euro"></i>&nbsp;Economique',
-	2 : '<i class="glyphicon glyphicon-briefcase"></i>&nbsp;Hors-gel',
-	1 : '<i class="glyphicon glyphicon-off"></i>&nbsp;Eteint',
+	2 : '<i class="glyphicon glyphicon-off"></i>&nbsp;Eteint',
+	1 : '<i class="glyphicon glyphicon-briefcase"></i>&nbsp;Hors-gel',
 };
 var DAYS_HTML = [ "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi",
 		"Vendredi", "Samedi" ];

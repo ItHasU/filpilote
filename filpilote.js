@@ -13,7 +13,7 @@ var status = {
 	"zones" : {},
 	"driver" : {},
 	"manuals" : [],
-}
+};
 
 // -- App ---------------------------------------------------------------------
 
@@ -134,7 +134,7 @@ function manuals_get(zone_id, date) {
 		instant = date.getTime();
 	}
 
-	var res = undefined;
+	var res;
 	for (var i = 0; i < status.manuals.length; i++) {
 		var rule = status.manuals[i];
 
@@ -177,7 +177,7 @@ function manuals_push(zone_id, mode, start_ms, duration_minutes) {
 		from_utc : start_ms,
 		to_utc : finish_ms,
 		mode : mode,
-	}
+	};
 	status.manuals.push(tmp_rule);
 }
 
@@ -202,7 +202,7 @@ function manuals_clear(date) {
 		instant = date.getTime();
 	}
 
-	var res = undefined;
+	var res;
 	var remaining = [];
 	for (var i = 0; i < status.manuals.length; i++) {
 		if (status.manuals[i].to_utc <= instant) {
@@ -228,17 +228,17 @@ function manuals_clear(date) {
  */
 function programs_get(program_id, zone_id, instant) {
 	var program = config.programs[program_id];
-	if (program == undefined) {
+	if (program === undefined) {
 		console.error("warning: Invalid program: " + program_id);
 		return 4;
 	}
 
-	if (instant == undefined) {
+	if (instant === undefined) {
 		instant = new Date();
 	}
 
-	var program = config.programs[program_id];
-	var res = undefined;
+	program = config.programs[program_id];
+	var res;
 	for (var i = 0; i < program.rules.length; i++) {
 		var rule = program.rules[i];
 		var day = instant.getDay();
@@ -410,7 +410,7 @@ function app_reload() {
 		"zones" : {},
 		"driver" : {},
 		"manuals" : [],
-	}
+	};
 
 	if (!config_load()) {
 		return false;
@@ -433,7 +433,7 @@ var update_interval = setInterval(function() {
 }, 5000);
 
 var server = app.listen(5000, function() {
-	var host = server.address().address
-	var port = server.address().port
-	console.log('Listening at http://%s:%s', host, port)
+	var host = server.address().address;
+	var port = server.address().port;
+	console.log('Listening at http://%s:%s', host, port);
 });
