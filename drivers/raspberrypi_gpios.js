@@ -8,13 +8,12 @@ function _gpio_open(status, io) {
 		console.log("gpio: open " + io);
 		return;
 	} else {
-		status.gpio_devices[io] = status.gpio.export(io, {
+		
+		var my_gpio = status.gpio.export(io, {
 			direction : "out",
 			ready : function() {
-				// Un vilain hack pour gérer un bug
-				setTimeout(function() {
-					status.gpio_devices[io].setDirection("out");
-				}, 100);
+				// Once initiazed, store object
+				status.gpio_devices[io] = my_gpio;
 			}
 		});
 	}
